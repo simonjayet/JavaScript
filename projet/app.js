@@ -71,6 +71,7 @@ class Forme /*extends Zone*/{
 			$(e.currentTarget).addClass("on");
 			console.log($(e.currentTarget));
 			console.log(this)
+			$(".pr_on").removeClass("pr_on").addClass("pr_off");
 		});
 		console.log(this.frm);
 	}
@@ -92,6 +93,7 @@ class Rectangle extends Forme{
 		this.height = 200;
 		this.Move = null;
 		this.Rotate = null;
+		this.Resize = null;
 	}
 
 	ajout(){
@@ -134,6 +136,8 @@ class Rectangle extends Forme{
 	updatePosition(x,y){
 		this.frm.setAttribute("x",x);
 		this.frm.setAttribute("y",y);
+		this.x = x;
+		this.y = y;
 		this.Resize.updatePosition(this.x, this.y)
 		this.Rotate.updatePosition(this.x, this.y)
 	}
@@ -194,11 +198,17 @@ class Circle extends Forme{
 	updatePosition(x,y){
 		this.frm.setAttribute("cx",x);
 		this.frm.setAttribute("cy",y);
+		this.x = x;
+		this.y = y,
 		this.Resize.updatePosition(this.x, this.y)
 
 	}
 	updateSize(r){
+		this.r = r;
 		this.frm.setAttribute("r",r)
+		console.log(r)
+		console.log(this.r)
+		console.log(this.frm.getAttribute('r'))
 	}
 	
 }
@@ -299,8 +309,9 @@ class Pr_Resize extends Proxy{
 			this.s_y = this.y + this.objForme.height - 5;
 		}
 		else{
-			this.s_x = this.x + this.objForme.r +5;
-			this.s_y = this.y + this.objForme.r +5;
+			this.s_x = this.x + this.objForme.r +10;
+			this.s_y = this.y - 5;
+			console.log(this.objForme.r)
 		}
 		
 		var rectangle = document.createElementNS(ns, "rect" );
@@ -334,8 +345,9 @@ class Pr_Resize extends Proxy{
 			this.s_y = this.y + this.objForme.height - 5;
 		}
 		else{
-			this.s_x = this.x + this.objForme.r + 5;
-			this.s_y = this.y + this.objForme.r + 5;
+			console.log(this.objForme.r);
+			this.s_x = this.x + this.objForme.r -5;
+			this.s_y = this.y - 5;
 		}
 		
 		this.s_proxy.setAttribute("x", this.s_x);
@@ -361,13 +373,14 @@ class Pr_Resize extends Proxy{
 					}
 					else{
 						if(g.x -5 - this.x > 0){
-						this.s_x = g.x -5;
-						this.s_y = g.y -5;
-						this.objForme.r = Math.sqrt(Math.pow(this.s_x - this.x,2)+Math.pow(this.s_y - this.y,2) );
+						this.s_x = g.x ;
+						this.s_y = g.y ;
+						this.objForme.r = Math.sqrt(Math.pow(this.s_x  - this.x,2)+Math.pow(this.s_y - this.y,2) );
 						console.log(this.objForme);
 						this.objForme.updateSize(this.objForme.r);
-						this.s_proxy.setAttribute('x',this.s_x);
-						this.s_proxy.setAttribute('y',this.s_y);
+						this.s_proxy.setAttribute('x',this.s_x - 5);
+						this.s_proxy.setAttribute('y',this.s_y - 5);
+						console.log(this.objForme.r)
 					}
 					}
 					
