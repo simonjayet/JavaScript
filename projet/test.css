@@ -1,0 +1,15 @@
+.on {
+  fill: pink;
+  stroke: blue;
+  stroke-width: 2;
+}
+
+.pr_off{
+	display: none;
+}
+.pr_on{
+	display: block;
+}
+body {
+  padding: 20px;
+}
