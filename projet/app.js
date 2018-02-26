@@ -8,7 +8,7 @@ var svg = document.querySelector('svg');
 var pt = svg.createSVGPoint();
 var svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
 
-
+//var zone = new Zone();
 
 function svgPoint(element, x, y) {
   
@@ -21,6 +21,7 @@ function svgPoint(element, x, y) {
 
 
 function addRectangle(){
+
 	var rectangle = new Rectangle();
 	rectangle.ajout();
 }
@@ -72,6 +73,13 @@ class Forme /*extends Zone*/{
 			console.log($(e.currentTarget));
 			console.log(this)
 			$(".pr_on").removeClass("pr_on").addClass("pr_off");
+		});
+		window.addEventListener("keydown", function(e){
+			var x = e.which || e.keyCode;
+			if(e.keyCode == 46){
+				console.log("delete")
+			}
+
 		});
 		console.log(this.frm);
 	}
