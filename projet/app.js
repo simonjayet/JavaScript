@@ -89,8 +89,8 @@ class Rectangle extends Forme{
 	
 	constructor(){
 		super();
-		this.width = 300;
-		this.height = 200;
+		this.width = 100;
+		this.height = 60;
 		this.Move = null;
 		this.Rotate = null;
 		this.Resize = null;
@@ -444,21 +444,26 @@ class Pr_Rotate extends Proxy{
 			$(svg).bind('mousemove', e=>{
 				var g = svgPoint(this.r_proxy, e.clientX, e.clientY);
 				console.log(g);
-				var rx = g.x - (this.x + (this.objForme.width/2));
-				var ry = g.y - (this.y + (this.objForme.height/2));
-				var rad = Math.atan2(ry,rx);
-				var deg = rad * (180/Math.PI);
-				console.log(ry);
-				this.objForme.updateRotate(this.y,this.x,deg);
-				this.r_proxy.setAttribute("transform", "rotate("+deg+" "+this.r_x+" "+this.r_y+")")
-				this.r_proxy.setAttribute()
+				this.r_proxy.setAttribute('cx', g.x)
+				this.r_proxy.setAttribute('cy', g.y)
+				var rx = this.r_proxy.getAttribute('cx')  - this.x ;
+				var ry = this.r_proxy.getAttribute('cy') - this.y ;
 				
-			
+				var rad = Math.atan2(ry,rx);
+				
+
+				this.deg = rad * (180/Math.PI);
+
+				
+				console.log(this.deg);
+				this.objForme.updateRotate(this.x,this.y,this.deg);
 			});
 		});
 
 		$(this.r_proxy).bind('mouseup', e=>{
 			$(svg).unbind('mousemove');
+			this.r_proxy.setAttribute("transform", "rotate("+this.deg+" "+this.objForme.x+" "+this.objForme.y+")")
+			this.updatePosition(this.x,this.y)
 		});
 
 	}
