@@ -299,8 +299,8 @@ class Pr_Resize extends Proxy{
 			this.s_y = this.y + this.objForme.height - 5;
 		}
 		else{
-			this.s_x = this.x + this.objForme.r ;
-			this.s_y = this.y + this.objForme.r ;
+			this.s_x = this.x + this.objForme.r +5;
+			this.s_y = this.y + this.objForme.r +5;
 		}
 		
 		var rectangle = document.createElementNS(ns, "rect" );
@@ -334,8 +334,8 @@ class Pr_Resize extends Proxy{
 			this.s_y = this.y + this.objForme.height - 5;
 		}
 		else{
-			this.s_x = this.x + this.objForme.r ;
-			this.s_y = this.y + this.objForme.r ;
+			this.s_x = this.x + this.objForme.r + 5;
+			this.s_y = this.y + this.objForme.r + 5;
 		}
 		
 		this.s_proxy.setAttribute("x", this.s_x);
@@ -363,11 +363,11 @@ class Pr_Resize extends Proxy{
 						if(g.x -5 - this.x > 0){
 						this.s_x = g.x -5;
 						this.s_y = g.y -5;
-						this.objForme.r = this.s_x - this.x;
+						this.objForme.r = Math.sqrt(Math.pow(this.s_x - this.x,2)+Math.pow(this.s_y - this.y,2) );
 						console.log(this.objForme);
 						this.objForme.updateSize(this.objForme.r);
-						this.s_proxy.setAttribute('x',this.objForme.x + this.objForme.r);
-						this.s_proxy.setAttribute('y',this.objForme.y + this.objForme.r);
+						this.s_proxy.setAttribute('x',this.s_x);
+						this.s_proxy.setAttribute('y',this.s_y);
 					}
 					}
 					
