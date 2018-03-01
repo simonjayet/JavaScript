@@ -8,7 +8,23 @@ var svg = document.querySelector('svg');
 var pt = svg.createSVGPoint();
 var svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
 
+var param = document.querySelector('#parametre');
+var colorF = document.createElement("input");
+colorF.setAttribute("type", "color");
+var colorS = document.createElement("input");
+colorS.setAttribute("type", "color");
+var wStroke = document.createElement("input");
+wStroke.setAttribute("type", "number");
+$(wStroke).attr({
+		min:0,
+		max:50
+});
+
+var nForme = document.querySelector('#newForm');
+
 //var zone = new Zone();
+
+var nml = document.querySelector('#NoMansLand');
 
 function svgPoint(element, x, y) {
   
@@ -18,6 +34,7 @@ function svgPoint(element, x, y) {
 		return pt.matrixTransform(element.getScreenCTM().inverse());
   
 	}
+
 
 
 function addRectangle(){
@@ -30,6 +47,40 @@ function addCircle(){
 	var circle = new Circle();
 	circle.ajout();
 }
+
+nml.addEventListener('click', e=>{
+	var allStates = $("svg.us > *");
+	allStates.removeClass("on");
+	$(".pr_on").removeClass("pr_on").addClass("pr_off");
+});
+
+var test = document.querySelectorAll("svg.us > *")
+
+
+var pointFormeX = [];
+var pointFormeY = [];
+$(nForme).bind('click', e=>{
+	$(window).unbind('keydown');
+	$(test).unbind('click');
+	$(svg).bind('click', e=>{
+			
+			var g = svgPoint(svg, e.clientX, e.clientY);
+			let x = g.x;
+			let y = g.y;
+			pointFormeX.push(x);
+			pointFormeY.push(y);
+	});
+	$(window).bind('keydown', e=>{
+					if(e.keyCode == 13){
+						var polygon = new Polygon(pointFormeX, pointFormeY);
+						polygon.ajout();
+						pointFormeX = [];
+						pointFormeY = [];
+						$(window).unbind('keydown');
+						$(svg).unbind('click');
+					}
+			});
+});
 
 
 
@@ -61,26 +112,80 @@ class Forme /*extends Zone*/{
 	constructor(){
 		this.x = 20;
 		this.y = 20;
-		this.fill = "red";
-		this.stroke = "black";
+		this.fill = "#ff0000";
+		this.stroke = "#000000";
+		this.wStroke = 3;
 		this.frm = null;
 	}
 	select(){
-		this.frm.addEventListener('click', function(e){
+		$(this.frm).bind('click', e=>{
 			var allStates = $("svg.us > *");
 			allStates.removeClass("on");
 			$(e.currentTarget).addClass("on");
 			console.log($(e.currentTarget));
 			console.log(this)
 			$(".pr_on").removeClass("pr_on").addClass("pr_off");
-		});
-		window.addEventListener("keydown", function(e){
-			var x = e.which || e.keyCode;
-			if(e.keyCode == 46){
-				console.log("delete")
-			}
+			$(window).unbind('keydown');
+			$(colorF).unbind('change');
+			$(colorS).unbind('change');
+			$(wStroke).unbind('input');
+			if(param.firstElementChild){
+					param.removeChild(colorF);
+					param.removeChild(colorS);
+					param.removeChild(wStroke);
+				}
 
+			
+			$(window).bind('keydown', e=>{
+				var x = e.which || e.keyCode;
+				if(e.keyCode == 46){
+					console.log(this.frm);
+					var idl = this.frm.getAttribute("id");
+					var re = document.querySelectorAll('[id^='+ idl +']');
+					console.log(re)
+					for (let i of re) {
+	  						svg.removeChild(i); // affiche 3, 5, 7
+					}
+					delete(this.frm);
+					delete(this.Rotate);
+					delete(this.Move);
+					delete(this.Resize);
+					$(window).unbind('keydown');
+				}
+				if(e.keyCode == 80){
+					console.log("parametre")
+					colorF.setAttribute("value", this.frm.getAttribute("fill"))
+					console.log(this.frm)
+					param.appendChild(colorF);
+					$(colorF).bind("change", e=>{
+						console.log(e.target.value)
+						this.fill = e.target.value;
+						this.frm.setAttribute("fill", e.target.value)
+						
+					});
+					colorS.setAttribute("value", this.frm.getAttribute("stroke"))
+					param.appendChild(colorS);
+					$(colorS).bind("change", e=>{
+						console.log(e.target.value)
+						this.stroke = e.target.value;
+						this.frm.setAttribute("stroke", e.target.value)
+					});
+					wStroke.setAttribute("value", this.frm.getAttribute("stroke-width"));
+					param.appendChild(wStroke);
+					$(wStroke).bind("input", e=>{
+						console.log(e.target.value)
+						if(e.target.value <= 50 && e.target.value >= 0){
+							this.wStroke = e.target.value;
+							this.frm.setAttribute("stroke-width", e.target.value)
+						}
+					});
+
+				}
+			});
 		});
+		
+
+
 		console.log(this.frm);
 	}
 
@@ -115,10 +220,12 @@ class Rectangle extends Forme{
 				height:this.height,
 				fill:this.fill,
 				stroke:this.stroke,
+				"stroke-width":this.wStroke,
 				id: "rectangle-"+ idp
 		});
 		document.querySelector("svg").appendChild(rectangle);
 		this.frm = rectangle;
+		console.log(this.frm)
 		this.Move = new Pr_Move(this);
 		this.Resize = new Pr_Resize(this);
 		this.Rotate = new Pr_Rotate(this);
@@ -182,9 +289,9 @@ class Circle extends Forme{
 			cx: this.x,
 			cy: this.y,
 			r:40,
-			fill:"red",
-			"stroke-width":3,
-			stroke:"black",
+			fill:this.fill,
+			"stroke-width":this.wStroke,
+			stroke:this.stroke,
 			id:"circle-"+idp
 		});
 		document.querySelector("svg").appendChild(cercle);
@@ -221,6 +328,50 @@ class Circle extends Forme{
 	
 }
 
+class Polygon extends Forme{
+		constructor(pointX,pointY){
+			super();
+			this.pointX = pointX;
+			this.pointY = pointY;
+			this.Move = null;
+		}
+		ajout(){
+
+
+		var polygon = document.createElementNS(ns, "polygon" ); 
+		var idp = document.querySelectorAll('[id^="polygon-"]').length + 1;
+
+		var at = "";
+		for(var i=0; i < this.pointX.length; i++){
+			at = at + this.pointX[i] + "," + this.pointY[i] + " ";
+		}
+		console.log(at)
+		$(polygon).attr({
+			points: at,
+			fill:this.fill,
+			"stroke-width":this.wStroke,
+			stroke:this.stroke
+			
+		});
+		
+
+		document.querySelector("svg").appendChild(polygon);
+		this.frm = polygon;
+		this.Move = new Pr_Move(this);
+		this.select();
+		}
+
+		select(){
+			super.select();
+			this.frm.addEventListener('click', e=>{
+				this.Move.show();
+		});
+		}
+
+		updatePosition(x,y){
+		this.frm.setAttribute("transform", "translate("+x+","+y+")");
+	}
+}
 
 
 class Proxy{
