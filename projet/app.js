@@ -3,6 +3,7 @@ var ns = "http://www.w3.org/2000/svg";
 var p_rectangle = /^rectangle-(\d+)/;
 var p_cercle = /^cercle-(\d+)/;
 var p_line = /^line-(\d+)/;
+var p_poly = /^polygon-(\d+)/;
 
 var svg = document.querySelector('svg');
 var pt = svg.createSVGPoint();
@@ -334,6 +335,7 @@ class Polygon extends Forme{
 			this.pointX = pointX;
 			this.pointY = pointY;
 			this.Move = null;
+			this.Rotate = null;
 		}
 		ajout(){
 
@@ -350,7 +352,8 @@ class Polygon extends Forme{
 			points: at,
 			fill:this.fill,
 			"stroke-width":this.wStroke,
-			stroke:this.stroke
+			stroke:this.stroke,
+			id:"polygon-"+idp
 			
 		});
 		
@@ -358,6 +361,7 @@ class Polygon extends Forme{
 		document.querySelector("svg").appendChild(polygon);
 		this.frm = polygon;
 		this.Move = new Pr_Move(this);
+		this.Rotate = new Pr_Rotate(this);
 		this.select();
 		}
 
@@ -365,11 +369,17 @@ class Polygon extends Forme{
 			super.select();
 			this.frm.addEventListener('click', e=>{
 				this.Move.show();
+				this.Rotate.show();
 		});
 		}
 
 		updatePosition(x,y){
 		this.frm.setAttribute("transform", "translate("+x+","+y+")");
+		this.Rotate.updatePosition(x, y)
+	}
+	updateRotate(x,y,deg){
+		this.frm.setAttribute("transform", "rotate("+deg+" "+x+" "+y+")")
+		this.Move.updateRotate(x,y,deg)
 	}
 }
 
@@ -402,8 +412,15 @@ class Proxy{
 class Pr_Move extends Proxy{
 	constructor(objForme){
 		super(objForme);
-		this.m_x = this.x - 5;
-		this.m_y = this.y - 5;
+		if(p_poly.test(this.objForme.frm.id)){
+			this.m_x = this.objForme.pointX[0]
+			this.m_y = this.objForme.pointY[0]
+			console.log(this.objForme.pointY[0])
+		}
+		else{
+			this.m_x = this.x - 5;
+			this.m_y = this.y - 5;
+		}
 		var rectangle = document.createElementNS(ns, "rect" );
 		$(rectangle).attr({
 				x:this.m_x,
@@ -439,8 +456,10 @@ class Pr_Move extends Proxy{
 				this.m_y = g.y - 5;
 				this.x = this.m_x + 5;
 				this.y = this.m_x + 5;
+
 				this.m_proxy.setAttribute("x",this.m_x);
 				this.m_proxy.setAttribute("y",this.m_y);
+					
 				this.objForme.x = this.m_x + 5;
 				this.objForme.y = this.m_y + 5;
 				console.log(this.objForme);
@@ -562,9 +581,15 @@ class Pr_Rotate extends Proxy{
 
 	constructor(objForme){
 		super(objForme);
-		this.r_x = this.x + this.objForme.width;
-		this.r_y = this.y ;
-		
+		if(p_poly.test(this.objForme.frm.id)){
+			this.r_x = this.objForme.pointX[1]
+			this.r_y = this.objForme.pointY[1]
+			console.log(this.objForme.pointY[1])
+		}
+		else{
+			this.r_x = this.x + this.objForme.width;
+			this.r_y = this.y ;
+		}
 		var circle = document.createElementNS(ns, "circle" );
 		$(circle).attr({
 				cx:this.r_x,
@@ -588,13 +613,19 @@ class Pr_Rotate extends Proxy{
 
 	updatePosition(x,y){
 		console.log(x)
-		this.x = x;
-		this.y = y;
-		this.r_x = this.x + this.objForme.width ;
-		this.r_y = this.y ;
 		
-		this.r_proxy.setAttribute("cx", this.r_x);
-		this.r_proxy.setAttribute("cy", this.r_y);
+		if(p_poly.test(this.objForme.frm.id)){
+			this.r_proxy.setAttribute("transform", "translate("+x+","+y+")");
+		}
+		else{
+			this.x = x;
+			this.y = y;
+			this.r_x = this.x + this.objForme.width ;
+			this.r_y = this.y ;
+		
+			this.r_proxy.setAttribute("cx", this.r_x);
+			this.r_proxy.setAttribute("cy", this.r_y);
+		}
 	}
 
 	rotate(){
