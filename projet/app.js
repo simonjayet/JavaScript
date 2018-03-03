@@ -139,7 +139,8 @@ class Forme /*extends Zone*/{
 			
 			$(window).bind('keydown', e=>{
 				var x = e.which || e.keyCode;
-				if(e.keyCode == 46){
+				if(this.frm.getAttribute("class") == "on"){
+					if(e.keyCode == 46){
 					console.log(this.frm);
 					var idl = this.frm.getAttribute("id");
 					var re = document.querySelectorAll('[id^='+ idl +']');
@@ -152,8 +153,10 @@ class Forme /*extends Zone*/{
 					delete(this.Move);
 					delete(this.Resize);
 					$(window).unbind('keydown');
+					}
 				}
-				if(e.keyCode == 80){
+				
+				else if(e.keyCode == 80){
 					console.log("parametre")
 					colorF.setAttribute("value", this.frm.getAttribute("fill"))
 					console.log(this.frm)
@@ -456,13 +459,19 @@ class Pr_Move extends Proxy{
 				this.m_y = g.y - 5;
 				this.x = this.m_x + 5;
 				this.y = this.m_x + 5;
-
 				this.m_proxy.setAttribute("x",this.m_x);
 				this.m_proxy.setAttribute("y",this.m_y);
-					
-				this.objForme.x = this.m_x + 5;
-				this.objForme.y = this.m_y + 5;
-				console.log(this.objForme);
+
+				if(p_poly.test(this.objForme.frm.id)){
+					this.objForme.x = this.m_x + 5 - this.objForme.pointX[0];
+					this.objForme.y = this.m_y + 5 - this.objForme.pointY[0];
+				}
+				else{
+					this.objForme.x = this.m_x + 5;
+					this.objForme.y = this.m_y + 5;
+					console.log(this.objForme);
+				}
+
 				this.objForme.updatePosition(this.objForme.x,this.objForme.y);
 			});
 		});
@@ -584,6 +593,8 @@ class Pr_Rotate extends Proxy{
 		if(p_poly.test(this.objForme.frm.id)){
 			this.r_x = this.objForme.pointX[1]
 			this.r_y = this.objForme.pointY[1]
+			this.x = this.objForme.pointX[0]
+			this.y = this.objForme.pointY[0]
 			console.log(this.objForme.pointY[1])
 		}
 		else{
@@ -646,6 +657,7 @@ class Pr_Rotate extends Proxy{
 
 				
 				console.log(this.deg);
+				
 				this.objForme.updateRotate(this.x,this.y,this.deg);
 			});
 		});
