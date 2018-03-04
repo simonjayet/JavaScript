@@ -4,7 +4,7 @@
 var ns = "http://www.w3.org/2000/svg";
 
 var p_rectangle = /^rectangle-(\d+)/;
-var p_cercle = /^cercle-(\d+)/;
+var p_cercle = /^circle-(\d+)/;
 var p_line = /^line-(\d+)/;
 var p_poly = /^polygon-(\d+)/;
 
@@ -72,6 +72,27 @@ var test = document.querySelectorAll("svg.us > *")
 
 		// Polygone
 
+var kc = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
+n = 0;
+$(document).keydown(function (e) {
+    if (e.keyCode === kc[n++]) {
+        if (n === kc.length) {
+    		if(document.querySelector(".hidden")){
+    			 $(".hidden").removeClass("hidden").addClass('kc')
+    		}
+    		else{
+    			$(".kc").removeClass("kc").addClass('hidden')
+    		}
+           
+            n = 0;
+            return false;
+        }
+    }
+    else {
+        n = 0;
+    }
+});
+
 var pointFormeX = [];
 var pointFormeY = [];
 $(nForme).bind('click', e=>{
@@ -112,7 +133,7 @@ class Zone{
 		rectangle.ajout();
 	}
 	ajoutLigne(){
-		var line = new Line("#ff0000","#000000",3,50,50,300,400);	//fill,stroke,stroke-width,x1,y1,x2,y2
+		var line = new Line("#ff0000","#000000",4,50,50,300,400);	//fill,stroke,stroke-width,x1,y1,x2,y2
 		line.ajout();
 	}
 	ajoutCercle(){
@@ -153,8 +174,6 @@ class Forme {
 			var allStates = $("svg.us > *");
 			allStates.removeClass("on");
 			$(e.currentTarget).addClass("on");
-			console.log($(e.currentTarget));
-			console.log(this)
 			$(".pr_on").removeClass("pr_on").addClass("pr_off");
 			$(window).unbind('keydown');
 			$(colorF).unbind('change');
@@ -171,13 +190,11 @@ class Forme {
 				var x = e.which || e.keyCode;
 				if(this.frm.getAttribute("class") == "on"){
 					if(e.keyCode == 46){
-					console.log(this.frm);
 					var idl = this.frm.getAttribute("id");
 					var re = document.querySelectorAll('[id^='+ idl +']');
-					console.log(re)
 					zone.delete(idl)
 					for (let i of re) {
-	  						svg.removeChild(i); // affiche 3, 5, 7
+	  						svg.removeChild(i);
 					}
 					delete(this.frm);
 					delete(this.Rotate);
@@ -185,13 +202,39 @@ class Forme {
 					delete(this.Resize);
 					$(window).unbind('keydown');
 					}
-					else if(e.keyCode == 80){
-					console.log("parametre")
+					else if(e.keyCode == 68){
+
+						if(p_poly.test(this.frm.id)){
+							var polygon = new Polygon(this.pointX, this.pointY,400,300,this.fill,this.stroke,this.wStroke); //tableauX,tableauY,x,y,fill,stroke,stroke-width
+							polygon.ajout();
+							if(this.frm.hasAttribute("transform")){
+								polygon.DupplicateRotate(this.frm.getAttribute("transform"))
+							}
+						}
+						else if(p_line.test(this.frm.id )){
+							var line = new Line(this.fill,this.stroke,this.wStroke,this.x1,this.y1,this.x2,this.y2)
+							line.ajout();
+						}
+						else if(p_rectangle.test(this.frm.id )){
+							var rectangle = new Rectangle(this.x, this.y, this.fill, this.stroke,this.wStroke,this.width,this.height);
+							rectangle.ajout();
+							if(this.frm.hasAttribute("transform")){
+								rectangle.DupplicateRotate(this.frm.getAttribute("transform"))
+							}
+						}
+						else if(p_cercle.test(this.frm.id)){
+							var cercle = new Circle(this.x, this.y, this.fill,this.stroke,this.wStroke,this.r);
+							cercle.ajout();
+						}
+
+					}
+					 
+
+				}
+				if(e.keyCode == 80){
 					colorF.setAttribute("value", this.frm.getAttribute("fill"))
-					console.log(this.frm)
 					param.appendChild(colorF);
 					$(colorF).bind("change", e=>{
-						console.log(e.target.value)
 						this.fill = e.target.value;
 						this.frm.setAttribute("fill", e.target.value)
 						
@@ -199,27 +242,22 @@ class Forme {
 					colorS.setAttribute("value", this.frm.getAttribute("stroke"))
 					param.appendChild(colorS);
 					$(colorS).bind("change", e=>{
-						console.log(e.target.value)
 						this.stroke = e.target.value;
 						this.frm.setAttribute("stroke", e.target.value)
 					});
 					wStroke.setAttribute("value", this.frm.getAttribute("stroke-width"));
 					param.appendChild(wStroke);
 					$(wStroke).bind("input", e=>{
-						console.log(e.target.value)
 						if(e.target.value <= 50 && e.target.value >= 0){
 							this.wStroke = e.target.value;
 							this.frm.setAttribute("stroke-width", e.target.value)
 						}
 					});
-
-				}
 				}
 				
 				
 			});
 		});
-		console.log(this.frm);
 	}
 
 	add(){
@@ -248,7 +286,16 @@ class Rectangle extends Forme{
 	ajout(){
 
 		var rectangle = document.createElementNS(ns, "rect" );
-		var idp = document.querySelectorAll('[id^="rectangle-"]').length + 1;
+		var idp = document.querySelectorAll('[id^="rectangle-"]').length;
+		var idn = true;
+		while(idn){
+			if(document.getElementById("rectangle-"+idp)){
+				idp = idp + 1
+			}
+			else{
+				idn = false
+			}
+		}
 		$(rectangle).attr({
 				x:this.x,
 				y:this.y,
@@ -261,7 +308,6 @@ class Rectangle extends Forme{
 		});
 		document.querySelector("svg").appendChild(rectangle);
 		this.frm = rectangle;
-		console.log(this.frm)
 		this.Move = new Pr_Move(this);
 		this.Resize = new Pr_Resize(this);
 		this.Rotate = new Pr_Rotate(this);
@@ -273,7 +319,6 @@ class Rectangle extends Forme{
 	select(){
 		super.select();
 		this.frm.addEventListener('click', e=>{
-			console.log(this);
 				this.Move.show();
 				this.Resize.show();
 				this.Rotate.show();
@@ -305,6 +350,13 @@ class Rectangle extends Forme{
 		this.Move.updateRotate(x,y,deg)
 	}
 
+	DupplicateRotate(r){
+		this.frm.setAttribute("transform",r);
+		this.Move.m_proxy.setAttribute("transform",r);
+		this.Resize.s_proxy.setAttribute("transform",r);
+		this.Rotate.r_proxy.setAttribute("transform",r);
+	}
+
 }
 
 
@@ -324,11 +376,20 @@ class Circle extends Forme{
 	ajout(){
 
 		var cercle = document.createElementNS(ns, "circle" ); 
-		var idp = document.querySelectorAll('[id^="circle-"]').length + 1;
+		var idp = document.querySelectorAll('[id^="circle-"]').length ;
+		var idn = true;
+		while(idn){
+			if(document.getElementById("circle-"+idp)){
+				idp = idp + 1
+			}
+			else{
+				idn = false
+			}
+		}
 		$(cercle).attr({
 			cx: this.x,
 			cy: this.y,
-			r:40,
+			r:this.r,
 			fill:this.fill,
 			"stroke-width":this.wStroke,
 			stroke:this.stroke,
@@ -345,7 +406,6 @@ class Circle extends Forme{
 	select(){
 		super.select();
 		this.frm.addEventListener('click', e=>{
-			console.log(this);
 				this.Move.show();
 				this.Resize.show();
 		});
@@ -361,9 +421,6 @@ class Circle extends Forme{
 	updateSize(r){
 		this.r = r;
 		this.frm.setAttribute("r",r)
-		console.log(r)
-		console.log(this.r)
-		console.log(this.frm.getAttribute('r'))
 	}
 	
 }
@@ -388,7 +445,16 @@ class Line extends Forme {
 
 	ajout() {
 		var line = document.createElementNS(ns,"line");
-		var idp = document.querySelectorAll('[id^="line-"]').length + 1;
+		var idp = document.querySelectorAll('[id^="line-"]').length;
+		var idn = true;
+		while(idn){
+			if(document.getElementById("line-"+idp)){
+				idp = idp + 1
+			}
+			else{
+				idn = false
+			}
+		}
 		$(line).attr({
 			x1:this.x1,
 			y1:this.y1,
@@ -396,6 +462,7 @@ class Line extends Forme {
 			y2:this.y2,
 			fill:this.fill,
 			stroke:this.stroke,
+			"stroke-width":this.wStroke,
 			id:"line-"+ idp
 		});
 		document.querySelector("svg").appendChild(line);
@@ -409,7 +476,6 @@ class Line extends Forme {
 	select(){
 		super.select();
 		this.frm.addEventListener('click', e=>{
-			console.log(this);
 				this.Move.show();
 				this.Resize1.show();
 		});
@@ -458,13 +524,21 @@ class Polygon extends Forme{
 
 
 		var polygon = document.createElementNS(ns, "polygon" ); 
-		var idp = document.querySelectorAll('[id^="polygon-"]').length + 1;
+		var idp = document.querySelectorAll('[id^="polygon-"]').length;
+		var idn = true;
+		while(idn){
+			if(document.getElementById("polygon-"+idp)){
+				idp = idp + 1
+			}
+			else{
+				idn = false
+			}
+		}
 
 		var at = "";
 		for(var i=0; i < this.pointX.length; i++){
 			at = at + this.pointX[i] + "," + this.pointY[i] + " ";
 		}
-		console.log(at)
 		$(polygon).attr({
 			points: at,
 			fill:this.fill,
@@ -497,6 +571,11 @@ class Polygon extends Forme{
 	updateRotate(x,y,deg){
 		this.frm.setAttribute("transform", "rotate("+deg+" "+x+" "+y+")")
 		this.Move.updateRotate(x,y,deg)
+	}
+	DupplicateRotate(r){
+		this.frm.setAttribute("transform",r);
+		this.Move.m_proxy.setAttribute("transform",r)
+		this.Rotate.r_proxy.setAttribute("transform",r)
 	}
 }
 
@@ -536,7 +615,6 @@ class Pr_Move extends Proxy{
 		if(p_poly.test(this.objForme.frm.id)){
 			this.m_x = this.objForme.pointX[0]
 			this.m_y = this.objForme.pointY[0]
-			console.log(this.objForme.pointY[0])
 		}
 		else if(p_line.test(this.objForme.frm.id )){
 			this.m_x = (this.objForme.x2 + this.objForme.x1) / 2 ;
@@ -573,11 +651,9 @@ class Pr_Move extends Proxy{
 
 
 	move(){
-		console.log(this.objForme);
 		$(this.m_proxy).bind('mousedown',e=>{
 			$(svg).bind('mousemove', e=>{
 				var g = svgPoint(this.m_proxy, e.clientX, e.clientY);
-				console.log(g);
 				if(p_line.test(this.objForme.frm.id )){
 					var difx1 = this.m_x - this.objForme.x1; 
 					var dify1 = this.m_y - this.objForme.y1 ;
@@ -595,7 +671,6 @@ class Pr_Move extends Proxy{
 					this.objForme.x2 = this.m_x - difx2
 					this.objForme.y2 = this.m_y - dify2
 				
-					console.log(this.objForme);	
 					this.objForme.updatePosition(this.objForme.x1,this.objForme.y1,this.objForme.x2,this.objForme.y2);
 					
 				}
@@ -613,9 +688,7 @@ class Pr_Move extends Proxy{
 					else{
 						this.objForme.x = this.m_x + 5;
 						this.objForme.y = this.m_y + 5;
-						console.log(this.objForme);
 					}
-					console.log(this.objForme);	
 					this.objForme.updatePosition(this.objForme.x,this.objForme.y);
 				}
 			});
@@ -628,7 +701,6 @@ class Pr_Move extends Proxy{
 	}
 
 	updatePosition(objForme) {
-		console.log(objForme);
 		this.x = (this.objForme.x1 + this.objForme.x2) / 2;
 		this.y = (this.objForme.y1 + this.objForme.y2) / 2;
 		this.m_proxy.setAttribute("x",this.x);
@@ -656,15 +728,12 @@ class Pr_Resize extends Proxy{
 		this.s_proxy2 = null;
 
 		if(p_rectangle.test(this.objForme.frm.id )){
-			console.log("rectangle");
 			this.s_x = this.x + this.objForme.width - 5;
 			this.s_y = this.y + this.objForme.height - 5;
 		}
 		else if(p_cercle.test(this.objForme.frm.id )){
-			console.log("cercle");
 			this.s_x = this.x + this.objForme.r +10;
 			this.s_y = this.y - 5;
-			console.log(this.objForme.r);
 		}
 		else if(p_line.test(this.objForme.frm.id )) {
 			this.s_x = this.objForme.x1 -5;
@@ -695,7 +764,7 @@ class Pr_Resize extends Proxy{
 					y:this.s_y2,
 					width:10,
 					height:10,
-					fill:"pink",
+					fill:"yellow",
 					stroke:"black",
 					id: this.objForme.frm.id + "_2",
 					cursor: "move"
@@ -748,7 +817,6 @@ class Pr_Resize extends Proxy{
 			this.s_proxy2.setAttribute("y", this.s_y2);
 		}
 		else{
-			console.log(this.objForme.r);
 			this.s_x = this.x + this.objForme.r -5;
 			this.s_y = this.y - 5;
 		}
@@ -763,7 +831,6 @@ class Pr_Resize extends Proxy{
 		$(this.s_proxy2).bind('mousedown',e=>{
 			$(svg).bind('mousemove', e=>{
 				var g = svgPoint(this.s_proxy, e.clientX, e.clientY);
-				console.log(g);
 				this.s_x2 = g.x - 5;
 				this.s_y2 = g.y - 5;
 				this.objForme.x2 = this.s_x2 + 5;
@@ -776,7 +843,6 @@ class Pr_Resize extends Proxy{
 		$(this.s_proxy).bind('mousedown',e=>{
 			$(svg).bind('mousemove', e=>{
 				var g = svgPoint(this.s_proxy, e.clientX, e.clientY);
-				console.log(g);
 				if(p_line.test(this.objForme.frm.id )) {
 						this.s_x = g.x - 5;
 						this.s_y = g.y - 5;
@@ -794,7 +860,6 @@ class Pr_Resize extends Proxy{
 						this.objForme.height = this.s_y - this.y + 5;
 						this.s_proxy.setAttribute('x',this.s_x);
 						this.s_proxy.setAttribute('y',this.s_y);
-						console.log(this.objForme);
 						this.objForme.updateSize(this.objForme.width,this.objForme.height);
 					}
 					else{
@@ -802,11 +867,9 @@ class Pr_Resize extends Proxy{
 							this.s_x = g.x ;
 							this.s_y = g.y ;
 							this.objForme.r = Math.sqrt(Math.pow(this.s_x  - this.x,2)+Math.pow(this.s_y - this.y,2) );
-							console.log(this.objForme);
 							this.objForme.updateSize(this.objForme.r);
 							this.s_proxy.setAttribute('x',this.s_x - 5);
 							this.s_proxy.setAttribute('y',this.s_y - 5);
-							console.log(this.objForme.r)
 						}
 					}
 					
@@ -843,7 +906,6 @@ class Pr_Rotate extends Proxy{
 			this.r_y = this.objForme.pointY[1]
 			this.x = this.objForme.pointX[0]
 			this.y = this.objForme.pointY[0]
-			console.log(this.objForme.pointY[1])
 		}
 		else{
 			this.r_x = this.x + this.objForme.width;
@@ -872,7 +934,6 @@ class Pr_Rotate extends Proxy{
 	}
 
 	updatePosition(x,y){
-		console.log(x)
 		if(p_poly.test(this.objForme.frm.id)){
 			this.r_proxy.setAttribute("transform", "translate("+x+","+y+")");
 		}
@@ -892,7 +953,6 @@ class Pr_Rotate extends Proxy{
 		$(this.r_proxy).bind('mousedown',e=>{
 			$(svg).bind('mousemove', e=>{
 				var g = svgPoint(this.r_proxy, e.clientX, e.clientY);
-				console.log(g);
 				this.r_proxy.setAttribute('cx', g.x)
 				this.r_proxy.setAttribute('cy', g.y)
 				var rx = this.r_proxy.getAttribute('cx')  - this.x ;
@@ -904,7 +964,6 @@ class Pr_Rotate extends Proxy{
 				this.deg = rad * (180/Math.PI);
 
 				
-				console.log(this.deg);
 				this.objForme.updateRotate(this.x,this.y,this.deg);
 			});
 		});

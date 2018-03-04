@@ -1,7 +1,6 @@
 .on {
 
   stroke: blue;
-  stroke-width: 2;
 }
 
 .pr_off{
@@ -24,4 +23,7 @@
 }
 #information {
 	height: 10em;
+}
+.hidden{
+	display: none
 }
