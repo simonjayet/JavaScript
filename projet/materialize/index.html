@@ -1,0 +1,52 @@
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+      <link type="text/css" rel="stylesheet" href="css/style.css"  media="screen,projection"/>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+
+    <body>
+
+    	<nav>
+		    <div class="nav-wrapper black">
+		      <a class="brand-logo center">Editeur de forme</a>
+		    </div>
+		</nav>
+
+		<div class="row">
+
+		    <div class="zone z-depth-4 col s9 push-s3 blue-grey lighten-5">
+		    	<svg class="us" width="800" height="600">
+				</svg>
+		    </div>
+
+	      	<div class="zone z-depth-4 col s3 pull-s9  grey darken-4 white-text center-align">
+			  <div class="section">
+			    <a class="waves-effect waves-light btn white black-text " onclick="addRectangle()">Rectangle</a>
+			  </div>
+			  <div class="section">
+			    <a class="waves-effect waves-light btn white black-text" onclick="addCircle()">Cercle</a>
+			  </div>
+			  <div class="section">
+			    <a class="waves-effect waves-light btn white black-text " onclick="addLine()">Ligne</a>
+			  </div>
+			<div class="divider white"></div>
+			<br>
+
+			<div class="section" id="edition"></div>
+
+	      </div>
+
+	    </div>
+
+
+      <!--Import jQuery before materialize.js-->
+      <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script type="text/javascript" src="js/materialize.min.js"></script>
+      <script type="text/javascript" src="js/script.js"></script>
+    </body>
+  </html>
