@@ -154,9 +154,7 @@ class Forme /*extends Zone*/{
 					delete(this.Resize);
 					$(window).unbind('keydown');
 					}
-				}
-				
-				else if(e.keyCode == 80){
+					else if(e.keyCode == 80){
 					console.log("parametre")
 					colorF.setAttribute("value", this.frm.getAttribute("fill"))
 					console.log(this.frm)
@@ -185,6 +183,9 @@ class Forme /*extends Zone*/{
 					});
 
 				}
+				}
+				
+				
 			});
 		});
 		
